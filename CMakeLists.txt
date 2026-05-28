@@ -18,18 +18,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# 查找或获取 nlohmann_json (header-only)
+# 查找 nlohmann_json (header-only)
 find_package(nlohmann_json 3.11.0 QUIET)
+
 if(NOT nlohmann_json_FOUND)
+    # 使用 FetchContent 仅下载，不创建 target
     include(FetchContent)
     FetchContent_Declare(
         json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG v3.11.3
     )
-    FetchContent_MakeAvailable(json)
-
-    # 获取头文件路径
+    FetchContent_GetProperties(json)
+    if(NOT json_POPULATED)
+        FetchContent_Populate(json)
+    endif()
     set(NLOHMANN_JSON_INCLUDE_DIR "${json_SOURCE_DIR}/include")
 endif()
 
@@ -46,7 +49,7 @@ target_include_directories(abogus
         $<INSTALL_INTERFACE:include>
 )
 
-# 链接 nlohmann_json
+# 添加 nlohmann_json 头文件
 if(TARGET nlohmann_json::nlohmann_json)
     target_link_libraries(abogus PRIVATE nlohmann_json::nlohmann_json)
 elseif(DEFINED NLOHMANN_JSON_INCLUDE_DIR)
