@@ -18,9 +18,9 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14, ubuntu-22.04, windows-2022]
+        os: [macos-15, ubuntu-22.04, windows-2022]
         include:
-          - os: macos-14
+          - os: macos-15
             artifact: macos-arm64
           - os: ubuntu-22.04
             artifact: linux-x64
@@ -55,10 +55,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14, ubuntu-22.04, windows-2022]
         include:
-          - os: macos-14
+          - os: macos-15
             target: macos-arm64
+          - os: macos-15
+            target: macos-x64
           - os: ubuntu-22.04
             target: linux
           - os: windows-2022
@@ -108,15 +109,22 @@ jobs:
     - name: Prepare release assets
       run: |
         mkdir -p release
-        # macOS
-        cp artifacts/abogus-macos-arm64/* release/ 2>/dev/null || true
-        cp artifacts/get_abogus-macos-arm64/* release/ 2>/dev/null || true
+        # macOS arm64
+        if [ -f artifacts/get_abogus-macos-arm64/get_abogus ]; then
+          cp artifacts/get_abogus-macos-arm64/get_abogus release/get_abogus-macos-arm64
+        fi
+        # macOS x64 (cross-compiled on arm64)
+        if [ -f artifacts/get_abogus-macos-x64/get_abogus ]; then
+          cp artifacts/get_abogus-macos-x64/get_abogus release/get_abogus-macos-x64
+        fi
         # Linux
-        cp artifacts/abogus-linux-x64/* release/ 2>/dev/null || true
-        cp artifacts/get_abogus-linux/* release/ 2>/dev/null || true
+        if [ -f artifacts/get_abogus-linux/get_abogus ]; then
+          cp artifacts/get_abogus-linux/get_abogus release/get_abogus-linux-x64
+        fi
         # Windows
-        cp artifacts/abogus-windows-x64/* release/ 2>/dev/null || true
-        cp artifacts/get_abogus-win/* release/ 2>/dev/null || true
+        if [ -f artifacts/get_abogus-win/get_abogus.exe ]; then
+          cp artifacts/get_abogus-win/get_abogus.exe release/get_abogus-windows-x64.exe
+        fi
         ls -la release/
 
     - name: Create Release
