@@ -16,6 +16,9 @@
     "signature"
   ],
   "license": "MIT",
+  "dependencies": {
+    "linkedom": "^0.18.12"
+  },
   "devDependencies": {
     "esbuild": "^0.20.0",
     "@yao-pkg/pkg": "^5.11.0"
