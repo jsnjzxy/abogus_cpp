@@ -1,0 +1,23 @@
+{
+  "name": "abogus-generator",
+  "version": "1.0.0",
+  "description": "Douyin a_bogus signature generator",
+  "main": "get_abogus_node.js",
+  "scripts": {
+    "build": "esbuild get_abogus_node.js --bundle --platform=node --outfile=bundle.js --minify && pkg bundle.js --targets node18-macos-arm64,node18-macos-x64,node18-linux-x64,node18-win-x64 --out-path ./dist --compress Brotli",
+    "build:macos-arm64": "esbuild get_abogus_node.js --bundle --platform=node --outfile=bundle.js --minify && pkg bundle.js --targets node18-macos-arm64 --output get_abogus --compress Brotli",
+    "build:macos-x64": "esbuild get_abogus_node.js --bundle --platform=node --outfile=bundle.js --minify && pkg bundle.js --targets node18-macos-x64 --output get_abogus --compress Brotli",
+    "build:linux": "esbuild get_abogus_node.js --bundle --platform=node --outfile=bundle.js --minify && pkg bundle.js --targets node18-linux-x64 --output get_abogus --compress Brotli",
+    "build:win": "esbuild get_abogus_node.js --bundle --platform=node --outfile=bundle.js --minify && pkg bundle.js --targets node18-win-x64 --output get_abogus.exe --compress Brotli"
+  },
+  "keywords": [
+    "douyin",
+    "abogus",
+    "signature"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "@yao-pkg/pkg": "^5.11.0"
+  }
+}

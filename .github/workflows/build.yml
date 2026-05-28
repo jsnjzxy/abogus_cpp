@@ -1,0 +1,125 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-cpp:
+    name: Build C++ Library
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-14, ubuntu-22.04, windows-2022]
+        include:
+          - os: macos-14
+            artifact: macos-arm64
+          - os: ubuntu-22.04
+            artifact: linux-x64
+          - os: windows-2022
+            artifact: windows-x64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Build
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: abogus-${{ matrix.artifact }}
+        path: |
+          build/lib*/libabogus.*
+          build/lib*/abogus.lib
+          build/bin*/abogus.dll
+        retention-days: 7
+
+  build-js:
+    name: Build JS Executable
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-14, ubuntu-22.04, windows-2022]
+        include:
+          - os: macos-14
+            target: macos-arm64
+          - os: ubuntu-22.04
+            target: linux
+          - os: windows-2022
+            target: win
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      working-directory: js
+      run: npm install
+
+    - name: Build executable
+      working-directory: js
+      run: npm run build:${{ matrix.target }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: get_abogus-${{ matrix.target }}
+        path: |
+          js/get_abogus
+          js/get_abogus.exe
+        retention-days: 7
+
+  release:
+    name: Create Release
+    needs: [build-cpp, build-js]
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release
+        # macOS
+        cp artifacts/abogus-macos-arm64/* release/ 2>/dev/null || true
+        cp artifacts/get_abogus-macos-arm64/* release/ 2>/dev/null || true
+        # Linux
+        cp artifacts/abogus-linux-x64/* release/ 2>/dev/null || true
+        cp artifacts/get_abogus-linux/* release/ 2>/dev/null || true
+        # Windows
+        cp artifacts/abogus-windows-x64/* release/ 2>/dev/null || true
+        cp artifacts/get_abogus-win/* release/ 2>/dev/null || true
+        ls -la release/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: release/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
