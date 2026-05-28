@@ -19,7 +19,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # 查找 nlohmann_json
-find_package(nlohmann_json QUIET)
+find_package(nlohmann_json 3.11.0 QUIET)
 if(NOT nlohmann_json_FOUND)
     # 尝试使用 FetchContent
     include(FetchContent)
@@ -27,6 +27,7 @@ if(NOT nlohmann_json_FOUND)
         json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG v3.11.3
+        EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(json)
 endif()
