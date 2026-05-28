@@ -111,22 +111,22 @@ jobs:
         mkdir -p release
         # macOS arm64
         if [ -f artifacts/get_abogus-macos-arm64/get_abogus ]; then
-          cp artifacts/get_abogus-macos-arm64/get_abogus release/get_abogus-macos-arm64
-          chmod +x release/get_abogus-macos-arm64
+          chmod +x artifacts/get_abogus-macos-arm64/get_abogus
+          tar -czvf release/get_abogus-macos-arm64.tar.gz -C artifacts/get_abogus-macos-arm64 get_abogus
         fi
-        # macOS x64 (cross-compiled on arm64)
+        # macOS x64
         if [ -f artifacts/get_abogus-macos-x64/get_abogus ]; then
-          cp artifacts/get_abogus-macos-x64/get_abogus release/get_abogus-macos-x64
-          chmod +x release/get_abogus-macos-x64
+          chmod +x artifacts/get_abogus-macos-x64/get_abogus
+          tar -czvf release/get_abogus-macos-x64.tar.gz -C artifacts/get_abogus-macos-x64 get_abogus
         fi
         # Linux
         if [ -f artifacts/get_abogus-linux/get_abogus ]; then
-          cp artifacts/get_abogus-linux/get_abogus release/get_abogus-linux-x64
-          chmod +x release/get_abogus-linux-x64
+          chmod +x artifacts/get_abogus-linux/get_abogus
+          tar -czvf release/get_abogus-linux-x64.tar.gz -C artifacts/get_abogus-linux get_abogus
         fi
         # Windows
         if [ -f artifacts/get_abogus-win/get_abogus.exe ]; then
-          cp artifacts/get_abogus-win/get_abogus.exe release/get_abogus-windows-x64.exe
+          zip -j release/get_abogus-windows-x64.zip artifacts/get_abogus-win/get_abogus.exe
         fi
         ls -la release/
 
